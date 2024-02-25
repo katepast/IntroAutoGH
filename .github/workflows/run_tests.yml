@@ -80,7 +80,7 @@ jobs:
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v3
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: build-artifact
           path: 'build/'
