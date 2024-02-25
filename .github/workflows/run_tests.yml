@@ -6,7 +6,7 @@ on:
       deployment_target:
         description: Choose target
         required: true
-        default:
+        default: all_tests
         type: choice
         options:
           - first_test
@@ -30,10 +30,50 @@ jobs:
         run: pip install -r requirements.txt
       - name: first_test
         if: "github.event.inputs.deployment_target == 'first_test'"
-        run: pytest tests/test_sale_click_btn.py::test_sale_click_btn
+        run: pytest tests/test_sale_click_btn.py::test_sale_click_btn --alluredir=allure-results
       - name: second_test
         if: "github.event.inputs.deployment_target == 'second_test'"
-        run: pytest tests/test_main_page.py::test_open
+        run: pytest tests/test_main_page.py::test_open --alluredir=allure-results
       - name: all_tests
         if: "github.event.inputs.deployment_target == 'all_tests'"
-        run: pytest tests
+        run: pytest tests --alluredir=allure-results
+      - name: Store allure results
+        uses: actions/upload-artifact@v3
+        with:
+          name: allure-results
+          path:
+            allure-results
+          retention-days: 5
+        
+  generate-report:
+    runs-on: ubuntu-latest
+    needs: test
+    name: Generate report
+    steps:
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'microsoft' # See 'Supported distributions' for available options
+          java-version: '17'
+      - run: sudo wget https://github.com/allure-framework/allure2/releases/download/2.23.1/allure-2.23.1.tgz && sudo tar -zxvf allure-2.23.1.tgz -C /opt/ && sudo ln -s /opt/allure-2.23.1/bin/allure /usr/bin/allure
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v3
+      - run: allure generate -c allure-results -o _site
+      - name: Store generated report
+        uses: actions/upload-artifact@v3
+        with:
+          name: _site
+          path:
+            _site
+          retention-days: 5
+  publish-report:
+    runs-on: ubuntu-latest
+    needs: generate-report
+    name: Report publication
+    steps:
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v3
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v2
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1.2.9
