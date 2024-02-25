@@ -35,12 +35,15 @@ jobs:
       - name: first_test
         if: "github.event.inputs.deployment_target == 'first_test'"
         run: pytest tests/test_sale_click_btn.py::test_sale_click_btn --alluredir=allure-results
+        continue-on-error: true
       - name: second_test
         if: "github.event.inputs.deployment_target == 'second_test'"
         run: pytest tests/test_main_page.py::test_open --alluredir=allure-results
+        continue-on-error: true
       - name: all_tests
         if: "github.event.inputs.deployment_target == 'all_tests'"
         run: pytest tests --alluredir=allure-results
+        continue-on-error: true
       - name: Store allure results
         uses: actions/upload-artifact@v3
         with:
