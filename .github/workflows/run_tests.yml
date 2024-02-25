@@ -81,9 +81,6 @@ jobs:
         uses: actions/download-artifact@v3
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
-        with:
-          name: build-artifact
-          path: 'build/'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1.2.9
