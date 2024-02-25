@@ -77,13 +77,10 @@ jobs:
     needs: generate-report
     name: Report publication
     steps:
-      - name: Setup Pages
-        uses: actions/configure-pages@v3
-      - name: Upload artifact
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v3
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v2
-        with:
-          # Upload entire repository
-          path: 'rendered_docs/_build/html'
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v1.2.9
